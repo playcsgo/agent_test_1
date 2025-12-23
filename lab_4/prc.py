@@ -5,6 +5,9 @@ import os
 import requests ## for HTTP request
 from pypdf import PdfReader
 import gradio as gr
+from dataclasses import dataclass
+from typing import Callable, Dict, Any
+
 
 load_dotenv(override=True)
 openai = OpenAI()
@@ -31,50 +34,105 @@ def record_unknown_question(question):
     push (f"Unknown question received: {question}")
     return {"recorded": "ok"}
 
-record_user_details_json = {
-    "name": "record_user_details",
-    "description": "Use this tool to record that a user is interested in being in touch and provided an email address",
-    "parameters": {
-        "type": "object",
-        "properties": {
-            "email": {
-                "type": "string",
-                "description": "The email address of this user"
-            },
-            "name": {
-                "type": "string",
-                "description": "The user's name, if they provided it"
-            }
-            ,
-            "notes": {
-                "type": "string",
-                "description": "Any additional information about the conversation that's worth recording to give context"
-            }
-        },
-        "required": ["email"],
-        "additionalProperties": False
-    }
-}
-
-record_unknown_question_json = {
-    "name": "record_unknown_question",
-    "description": "Always use this tool to record any question that couldn't be answered as you didn't know the answer",
-    "parameters": {
-        "type": "object",
-        "properties": {
-            "question": {
-                "type": "string",
-                "description": "The question that couldn't be answered"
-            },
-        },
-        "required": ["question"],
-        "additionalProperties": False
-    }
-}
-
 ## Define available tools for this agent, like RBAC allowed actions.
-tools = [{"type": "function", "function": record_user_details_json},
-        {"type": "function", "function": record_unknown_question_json}]
+## 且使用 toolwhite list的寫法
+@dataclass
+class Tool_Spec:
+    name: str
+    description: str
+    parameters: Dict[str, Any]
+    func: Callable
+
+TOOLS = [
+    Tool_Spec(
+        name= "record_user_details",
+        description= "Use this tool to record that a user is interested in being in touch and provided an email address",
+        parameters = {
+            "type": "object",
+            "properties": {
+                "email": { "type": "string" },
+                "name": { "type": "string" },
+                "notes": { "type": "string" },
+            },
+            "required": ["email"],
+            "additionalProperties": False,
+        },
+        func=record_user_details,
+    ),
+    Tool_Spec(
+        name="record_unknown_question",
+        description="Record unanswered question",
+        parameters={
+            "type": "object",
+            "properties": {
+                "question": {"type": "string"},
+            },
+            "required": ["question"],
+            "additionalProperties": False,
+        },
+        func=record_unknown_question,
+    ),
+]
+
+# Comprehension 語法糖
+openai_tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": t.name,
+            "description": t.description,
+            "parameters": t.parameters,
+        },
+    }
+    for t in TOOLS
+]
+
+TOOL_REGISTRY = {t.name: t.func for t in TOOLS}
+
+
+
+# record_user_details_json = {
+#     "name": "record_user_details",
+#     "description": "Use this tool to record that a user is interested in being in touch and provided an email address",
+#     "parameters": {
+#         "type": "object",
+#         "properties": {
+#             "email": {
+#                 "type": "string",
+#                 "description": "The email address of this user"
+#             },
+#             "name": {
+#                 "type": "string",
+#                 "description": "The user's name, if they provided it"
+#             }
+#             ,
+#             "notes": {
+#                 "type": "string",
+#                 "description": "Any additional information about the conversation that's worth recording to give context"
+#             }
+#         },
+#         "required": ["email"],
+#         "additionalProperties": False
+#     }
+# }
+
+# record_unknown_question_json = {
+#     "name": "record_unknown_question",
+#     "description": "Always use this tool to record any question that couldn't be answered as you didn't know the answer",
+#     "parameters": {
+#         "type": "object",
+#         "properties": {
+#             "question": {
+#                 "type": "string",
+#                 "description": "The question that couldn't be answered"
+#             },
+#         },
+#         "required": ["question"],
+#         "additionalProperties": False
+#     }
+# }
+
+
 
 
 ## 直接使用 if 來指派不同函數的(tool)的使用. 這個是最基本也是最可讀的方法
@@ -113,12 +171,8 @@ tools = [{"type": "function", "function": record_user_details_json},
     
 #     return results
 
-## 改用 toolwhite list的寫法
 
-TOOL_REGISTRY = {
-    "record_user_details": record_user_details,
-    "record_unknown_question": record_unknown_question,
-}
+
 
 def handle_tool_calls(tool_calls):
     results = []
@@ -170,7 +224,7 @@ def chat(message, history):
     too_iterations = 0
     
     while True:
-        response = openai.chat.completions.create(model="gpt-4o-mini", messages = messages, tools = tools)
+        response = openai.chat.completions.create(model="gpt-4o-mini", messages = messages, tools = openai_tools)
         finish_reason = response.choices[0].finish_reason # finish_reason naming 是SPEC寫死的嗎?
 
         choice = response.choices[0]
