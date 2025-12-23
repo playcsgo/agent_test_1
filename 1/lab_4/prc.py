@@ -194,14 +194,14 @@ def handle_tool_calls(tool_calls):
         })
     return results
 
-pdf_info = PdfReader("info/sam_linkedin.pdf")
+pdf_info = PdfReader("../info/sam_linkedin.pdf")
 linkedin_text = ""
 for page in pdf_info.pages:
     text =  page.extract_text()
     if text:
         linkedin_text += text
 
-with open("info/summary.txt", encoding="utf-8") as f:
+with open("../info/summary.txt", encoding="utf-8") as f:
     summary = f.read()
 
 name = "Sam Lu"
