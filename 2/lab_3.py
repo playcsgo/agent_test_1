@@ -90,6 +90,25 @@ emailer_agent = Agent(
 )
 
 
+## Add Input Guardrial for check if input included a name
+class IsNameIncluded(BaseModel):
+    is_name_included: bool
+    name: str
+
+guardrail_agent = Agent( 
+    name="Name check",
+    instructions="Check if the user is including someone's personal name in what they want you to do.",
+    output_type=IsNameIncluded,
+    model="gpt-4o-mini"
+)
+
+@input_guardrail
+async def guardrail_block_name(ctx, agent, message):
+    result = await Runner.run(guardrail_agent, message, context=ctx.context)
+    is_name_included = result.final_output.is_name_included
+    return GuardrailFunctionOutput(output_info={'found_name': result.final_output}, tripwire_triggered=is_name_included)
+
+
 ## build of agent for sales department 
 instructions1 = "You are a sales agent working for ComplAI, \
 a company that provides a SaaS tool for ensuring SOC2 compliance and preparing for audits, powered by AI. \
@@ -152,14 +171,19 @@ sales_manager = Agent(
     instructions=sales_manager_instructions,
     tools=draft_generate_tools,
     handoffs=handoffs,
-    model='gpt-4o-mini'
+    model='gpt-4o-mini',
+    input_guardrails=[guardrail_block_name]
 )
 
+
+## message for action
+test_guardrial_message = "Send out a cold sales email addressed to Dear CEO from Alice"
 message = 'Send a cold sales mail'
+
 
 async def main():
     with trace('lab_3'):
-        return await Runner.run(sales_manager, message)
+        return await Runner.run(sales_manager, test_guardrial_message)
 
 if __name__ == '__main__':
     asyncio.run(main())
