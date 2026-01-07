@@ -1,19 +1,20 @@
 #!/usr/bin/env python
 import warnings
 from datetime import datetime
-import os
 from finacial_researcher.crew import FinacialResearcher
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 
-# os.makedirs('output', exist_ok=True)
 
 def run():
     """
     Run the crew.
     """
+    current_date = datetime.now().strftime('%Y-%m-%d')
+
     inputs = {
-       'company': 'Google'
+       'company': 'Google',
+       'current_date': current_date,
     }
 
     try:

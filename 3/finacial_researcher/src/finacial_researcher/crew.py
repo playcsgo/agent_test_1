@@ -2,7 +2,11 @@ from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
 from typing import List
+from crewai_tools import SerperDevTool
+from dotenv import load_dotenv
 
+
+load_dotenv(override=True)
 
 @CrewBase
 class FinacialResearcher():
@@ -14,7 +18,8 @@ class FinacialResearcher():
     @agent
     def researcher(self) -> Agent:
         return Agent(
-            config=self.agents_config['researcher'], # type: ignore[index]
+            config=self.agents_config['researcher'],
+            tools=[SerperDevTool()],
             verbose=True
         )
 
