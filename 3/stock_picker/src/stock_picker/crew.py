@@ -45,7 +45,6 @@ class StockPicker():
     def financial_researcher(self) -> Agent:
         return Agent(
             config=self.agents_config['financial_researcher'], # type: ignore[index]
-            memory=True,
         )
     
     @agent
@@ -53,6 +52,7 @@ class StockPicker():
         return Agent(
             config=self.agents_config['stock_picker'], # type: ignore[index]
             verbose=True,
+            memory=True,
         )
     
 
@@ -94,39 +94,39 @@ class StockPicker():
             tasks=self.tasks,
             process=Process.hierarchical, ## allow manager delegate tasks
             manager_agent=manager,
-            # memory=True,
-            # # Long-term memory for persistent storage across sessions
-            # long_term_memory=LongTermMemory(
-            #     storage=LTMSQLiteStorage(
-            #         db_path='./memory/long_term_memory_storage.db'
-            #     )
-            # ),
+            memory=True,
+            # Long-term memory for persistent storage across sessions
+            long_term_memory=LongTermMemory(
+                storage=LTMSQLiteStorage(
+                    db_path='./memory/long_term_memory_storage.db'
+                )
+            ),
 
-            # # Short-term memory for current context using RAG
-            # short_term_memory=ShortTermMemory(
-            #     storage = RAGStorage(
-            #         embedder_config = {
-            #             'provider': 'openai',
-            #             'config': {
-            #                 'model': 'text-embedding-3-small',
-            #             }
-            #         },
-            #         type='short_term',
-            #         path='./memory/'
-            #     )
-            # ),
+            # Short-term memory for current context using RAG
+            short_term_memory=ShortTermMemory(
+                storage = RAGStorage(
+                    embedder_config = {
+                        'provider': 'openai',
+                        'config': {
+                            'model': 'text-embedding-3-small',
+                        }
+                    },
+                    type='short_term',
+                    path='./memory/'
+                )
+            ),
 
-            # # Entity memory for tracking key information about entities
-            # entity_memory=EntityMemory(
-            #     storage = RAGStorage(
-            #         embedder_config= {
-            #             'provider': 'openai',
-            #             'config': {
-            #                 'model': 'text-embedding-3-small'
-            #             }
-            #         },
-            #         type='short_term',
-            #         path='./memory/'
-            #     )
-            # )
+            # Entity memory for tracking key information about entities
+            entity_memory=EntityMemory(
+                storage = RAGStorage(
+                    embedder_config= {
+                        'provider': 'openai',
+                        'config': {
+                            'model': 'text-embedding-3-small'
+                        }
+                    },
+                    type='short_term',
+                    path='./memory/'
+                )
+            )
         )

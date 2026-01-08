@@ -14,7 +14,7 @@ def run():
     current_date = datetime.now().strftime('%Y-%m-%d')
     inputs = {
         'sector': 'Technology',
-        'current_year': str(current_date)
+        'current_date': str(current_date)
     }
 
     try:
