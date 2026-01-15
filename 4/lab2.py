@@ -65,8 +65,8 @@ graph_builder.add_conditional_edges('chatbot', tools_condition, 'toolss')
 graph_builder.add_edge('tools', 'chatbot')
 graph_builder.add_edge(START, 'chatbot')
 
-graph = graph_builder.compile()
-print(graph.get_graph().draw_ascii())
+# graph = graph_builder.compile()
+# print(graph.get_graph().draw_ascii())
 
 
 def chat(user_input: str, history: str):
@@ -78,7 +78,6 @@ def chat(user_input: str, history: str):
     })
     return result['messages'][-1].content
 
-gr.ChatInterface(chat).launch()
 
 ## check mermaid png
 # import io
@@ -86,3 +85,20 @@ gr.ChatInterface(chat).launch()
 # png_data = graph.get_graph().draw_mermaid_png()
 # img = Image.open(io.BytesIO(png_data))
 # img.show() 
+
+
+## apply memory
+from langgraph.checkpoint.memory import MemorySaver
+memory = MemorySaver()
+graph = graph_builder.compile(
+    checkpointer=memory
+)
+
+config = {'configurable': {'thread_id': '1'}}
+
+def chat_with_memory(user_input: str, history: str):
+    ## pass config to enable memory while invoking the graph
+    result = graph.invoke({'messages': [{'role':'user', 'content': user_input}]}, config=config)
+    return result['messages'][-1].content
+
+gr.ChatInterface(chat_with_memory).launch()
