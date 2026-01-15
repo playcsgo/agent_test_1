@@ -89,9 +89,25 @@ def chat(user_input: str, history: str):
 
 ## apply memory
 from langgraph.checkpoint.memory import MemorySaver
-memory = MemorySaver()
+# memory = MemorySaver()
+# graph = graph_builder.compile(
+#     checkpointer=memory
+# )
+
+# config = {'configurable': {'thread_id': '1'}}
+
+
+## apply memory with sql
+
+import sqlite3
+from langgraph.checkpoint.sqlite import SqliteSaver
+
+db_path = 'sql_memory.db'
+connection = sqlite3.connect(db_path, check_same_thread=False)
+sql_memory = SqliteSaver(connection)
+
 graph = graph_builder.compile(
-    checkpointer=memory
+    checkpointer=sql_memory
 )
 
 config = {'configurable': {'thread_id': '1'}}
