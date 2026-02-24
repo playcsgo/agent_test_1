@@ -1,0 +1,33 @@
+## 關鍵改進點:
+
+1. ✅ **添加 try-catch** - 捕獲所有可能的錯誤
+2. ✅ **狀態重置** - 每次新請求都確保 `feedback_on_work` 為 None
+3. ✅ **使用 `.copy()`** - 避免直接修改狀態
+4. ✅ **檢查結果長度** - 避免索引錯誤
+5. ✅ **驗證輸入** - 確保 message 和 success_criteria 不為空
+
+
+
+問題
+1. 
+browser_manager = BrowserManager() 寫在這邊 不就是只有一個browser instance了嗎?
+這樣是我們要的嗎?
+
+2.
+graph_builder.add_node('tools', tools_with_timeout)
+為什麼不是 graph_builder.add_node('tools', tools_with_timeout())
+
+3. 
+我之前在做node.js fastiy backend的時候都會有一個Error handler 在app.js
+是不是因為這個Error handler防止了 出錯就爆掉的問題, 所以我每個function都不用使用try and catch
+
+我想知道我這個app使用也可以使用這種方式
+這樣每個function就不用重複寫try-catch ?
+你覺得有這樣比較好嗎?
+
+4. timeout的部分有三個地方要加
+browser
+node
+graph
+有辦法寫一個共用的function來加嗎
+還是你覺得各別加才對

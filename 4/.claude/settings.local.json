@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir /s \"d:\\\\SW\\\\training\\\\udemy\\\\agents\\\\4\")",
+      "Bash(uv python find:*)",
+      "Bash(test:*)"
+    ]
+  }
+}

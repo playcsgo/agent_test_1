@@ -1,0 +1,28 @@
+1. add system message logic
+2. hasattr ? has a ttr ?
+3. isinstance ? is that a sugar for if condition ?
+4. 'content': f"Evaluator Feedback on this answer: {evaluate_result.feedback}". why .feedback ?
+
+5. why evaluate_result has these attributes
+new_state = {
+        'messages': [{
+            'role': 'assustant', 
+            'content': f"Evaluator Feedback on this answer: {evaluate_result.feedback}"
+        }],
+        'feedback_on_work': evaluate_result.feedback,
+        'success_criteria_met': evaluate_result.success_criteria_met,
+        'user_input_needed': evaluate_result.user_input_needed
+    }
+
+6. edge flow ?
+graph_builder.add_conditional_edges('worker', worker_router, {'tools': 'tools', 'evaluator': 'evaluator'})
+graph_builder.add_edge('tools', 'worker')
+graph_builder.add_conditional_edges
+graph_builder.add_edge(START, 'worker')
+
+7. why it composed as that
+return history + [user, reply, feedback]
+
+8. gradio settings 翻譯
+
+
