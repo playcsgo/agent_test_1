@@ -11,6 +11,14 @@ from pydantic import BaseModel, Field
 from typing import Literal
 import asyncio
 
+# apply adpter trun Langchain tools to AG tools.
+from autogen_ext.tools.langchain import LangChainToolAdapter
+from langchain_community.utilities import GoogleSerperAPIWrapper
+from langchain_community.agent_toolkits import FileManagementToolkit
+from langchain_core.tools.simple import Tool
+
+
+
 load_dotenv(override=True)
 
 
@@ -34,9 +42,42 @@ class ImageDescription(BaseModel):
     style: str = Field(description='The artistic style of the image')
     orientation: Literal["portrait", "landscape", "square"] = Field(description='The orientation of the image')
 
+# enhance function of searcher
+serper = GoogleSerperAPIWrapper()
+
+def search_with_sources(query: str) -> str:
+    results = serper.results(query)
+    output = []
+    for r in results.get("organic", []):
+        output.append(f"Title: {r.get('title')}\nURL: {r.get('link')}\nSnippet: {r.get('snippet')}\n")
+    return "\n".join(output)
+
+# apply Langchain tools to AG tools through adapter
+prompt = """Your task is to find a one-way non-stop flight from JFK to LHR for tomorrow afternoon.
+Search online multiple times using different queries to find at least 3 different flight options.
+Verify each option is truly non-stop and confirm the price from the source.
+Next, write all the deals to a file called flights.md with full details.
+Finally, select the one you think is best and reply with a short summary.
+Reply with the selected flight only, and only after you have written the details to the file.
+You MUST call the write_file tool before replying."""
+
+
+langchain_serper = Tool(name='internet_search', func=search_with_sources, description='useful for when you need to search the internet')
+autogen_serper = LangChainToolAdapter(langchain_serper)
+autogen_tools = [autogen_serper]
+
+langchain_file_management_tools = FileManagementToolkit(root_dir='sandbox').get_tools()
+for tool in langchain_file_management_tools:
+    autogen_tools.append(LangChainToolAdapter(tool))
+
+# for tool in autogen_tools:
+#     print(tool.name, tool.description)
 
 # set model_client for AG
 model_client = OpenAIChatCompletionClient(model='gpt-4o-mini')
+
+agent = AssistantAgent(name='searcher', model_client=model_client, tools=autogen_tools, reflect_on_tool_use=True)
+message = TextMessage(content=prompt, source='user')
 
 # create assistant agent with that model_client
 describer = AssistantAgent(
@@ -46,6 +87,7 @@ describer = AssistantAgent(
     output_content_type=ImageDescription
 )
 
+
 # action function
 async def describe_image():
     'send mulit-modal message to assistant agent and print the response'
@@ -53,8 +95,28 @@ async def describe_image():
     reply = response.chat_message.content
     print(reply)
 
+async def search_flight():
+    'send text message to assistant agent and print the response'
+    response = await agent.on_messages([message], cancellation_token=CancellationToken())
+    reply = response.chat_message.content
+    print(reply)
+
+    followup_message = TextMessage(content='OK, proceed', source='user')
+    await agent.on_messages([followup_message], cancellation_token=CancellationToken())
+
+
+
+# async def write_flight_details_to_file():
+#     'open file and write down the flight details'
+#     message = TextMessage(content = 'Ok, proceed', source='user')
+#     result = await agent.on_messages([message], cancellation_token=CancellationToken())
+#     for message in reuslt.inner_messages:
+
+
+
 def main():
-    asyncio.run(describe_image())
+    # asyncio.run(describe_image())
+    asyncio.run(search_flight())
 
 
 if __name__ == "__main__":
