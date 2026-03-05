@@ -1,19 +1,22 @@
-### Flight Options from JFK to LHR for Tomorrow Afternoon
+# Flight Options from JFK to LHR (Tomorrow Afternoon)
 
-1. **British Airways**  
-   - **Flight Details**: Departs from JFK at 5:25 PM, arrives at LHR at 6:00 AM (next day).  
-   - **Duration**: 7h 35m  
-   - **Price**: $623.00  
-   - **Booking Link**: [British Airways](https://www.britishairways.com)
+## 1. American Airlines
+- **Departure:** 6:10 PM
+- **Arrival:** 6:30 AM (next day)
+- **Duration:** 7 hours 20 minutes
+- **Price:** $425
+- **Link:** [Book Here](https://www.aa.com/en-us/flights-from-new-york-to-london)
 
-2. **American Airlines**  
-   - **Flight Details**: Departs from JFK at 5:00 PM, arrives at LHR at 5:35 AM (next day).  
-   - **Duration**: 7h 35m  
-   - **Price**: $599.00  
-   - **Booking Link**: [American Airlines](https://www.aa.com)
+## 2. British Airways
+- **Departure:** 5:30 PM
+- **Arrival:** 5:50 AM (next day)
+- **Duration:** 7 hours 20 minutes
+- **Price:** $449
+- **Link:** [Book Here](https://www.flights.com/lp/flights/jfk/lhr/new-york-to-london)
 
-3. **Virgin Atlantic**  
-   - **Flight Details**: Departs from JFK at 6:10 PM, arrives at LHR at 6:50 AM (next day).  
-   - **Duration**: 7h 40m  
-   - **Price**: $645.00  
-   - **Booking Link**: [Virgin Atlantic](https://www.virginatlantic.com)
+## 3. Virgin Atlantic
+- **Departure:** 7:00 PM
+- **Arrival:** 7:20 AM (next day)
+- **Duration:** 7 hours 20 minutes
+- **Price:** $549
+- **Link:** [Book Here](https://www.virginatlantic.com)

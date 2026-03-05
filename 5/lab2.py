@@ -17,8 +17,6 @@ from langchain_community.utilities import GoogleSerperAPIWrapper
 from langchain_community.agent_toolkits import FileManagementToolkit
 from langchain_core.tools.simple import Tool
 
-
-
 load_dotenv(override=True)
 
 
@@ -114,9 +112,44 @@ async def search_flight():
 
 
 
+# apply Team interactions
+from autogen_agentchat.teams import RoundRobinGroupChat
+from autogen_agentchat.conditions import  TextMentionTermination
+
+primary_agent = AssistantAgent(
+    name='primary_agent',
+    model_client=model_client,
+    tools=autogen_tools,
+    system_message='You are a helpful AI research assistant who looks for promising deals on flights. Incorporate any feedback you receive.',
+)
+
+evaluation_agent = AssistantAgent(
+    name='evaluation_agent',
+    model_client=model_client,
+    system_message='Provide constructive feedback. Respond with "APPROVE" when your feedback is addressed.',
+)
+
+text_termination = TextMentionTermination('APPROVE')
+
+team = RoundRobinGroupChat([primary_agent, evaluation_agent], termination_condition=text_termination, max_turns=20)
+
+
+# work as a team
+async def team_search_flight():
+    'let primary_agent search for flight deals and evaluation_agent provide feedback until the deal is good enough'
+    initial_message = TextMessage(content=prompt, source='user')
+    response = await team.run(task=initial_message)
+    for message in response.messages:
+        print(f"{message.source}:\n{message.content}\n\n")
+
+    followup_message = TextMessage(content='OK, proceed', source='user')
+    await team.run(task=followup_message)
+
 def main():
     # asyncio.run(describe_image())
-    asyncio.run(search_flight())
+    # asyncio.run(search_flight())
+    asyncio.run(team_search_flight())
+    
 
 
 if __name__ == "__main__":
