@@ -145,10 +145,32 @@ async def team_search_flight():
     followup_message = TextMessage(content='OK, proceed', source='user')
     await team.run(task=followup_message)
 
+
+## MCP teaser 
+from autogen_ext.tools.mcp import StdioServerParams, mcp_server_tools
+
+# Get the fectch  tool from mcp-server-fetch.
+async def fetch_with_mcp():
+    fetch_mcp_server = StdioServerParams(command='uvx', args=['mcp-server-fetch'], read_timeout_seconds=30)
+    fetcher = await mcp_server_tools(fetch_mcp_server)
+
+    model_client = OpenAIChatCompletionClient(model='gpt-4o-mini')
+    agent = AssistantAgent(
+        name='fetcher',
+        model_client=model_client,
+        tools=fetcher,
+        reflect_on_tool_use=True
+    )
+
+    result = await agent.run(task='Review website "https://ani.gamer.com.tw", and provide TOP 3 to me.')
+    print(result.messages[-1].content)
+    
+
 def main():
     # asyncio.run(describe_image())
     # asyncio.run(search_flight())
-    asyncio.run(team_search_flight())
+    # asyncio.run(team_search_flight())
+    asyncio.run(fetch_with_mcp())
     
 
 
