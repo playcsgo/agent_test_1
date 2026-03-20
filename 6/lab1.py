@@ -54,6 +54,9 @@ When you need to write files, you do that inside the sandbox folder only.
 ACTION = "Find a great recipe for Banoffee Pie, then summarize it in markdown to banoffee.md"
 
 
+## build MCP client for session handling
+## (client is built in openAI SDK after update)
+
 # main
 async def main():
     mcp_params = build_mcp_params()
