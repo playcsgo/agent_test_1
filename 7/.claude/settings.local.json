@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv run:*)",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(uvx --version)",
+      "Bash(npx --version)",
+      "Bash(python -c \":*)",
+      "Bash(uv run python -c \":*)",
+      "Bash(where npx:*)"
+    ]
+  }
+}
